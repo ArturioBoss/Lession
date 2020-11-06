@@ -7,15 +7,10 @@ import java.util.TreeMap;
 public class Main {
     public static void main(String[] args) {
 
-//        MyWindow myWindow = new MyWindow();
+        MyWindow myWindow = new MyWindow();
 
-//        NumberConverter converter = new NumberConverter();
-//        String romanFour = converter.toRoman(4);
-//        System.out.println(romanFour);
-//        String thrity = converter.toRoman(78);
-//        System.out.println(thrity);
-        doValue();
-        doConvertArabic();
+//        doValue();
+//        doConvertArabic();
 
 
     }
