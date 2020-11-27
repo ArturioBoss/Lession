@@ -2,6 +2,7 @@ package com.chat.server;
 
 import com.chat.auth.AuthenticationService;
 import com.chat.auth.BasicAuthenticationService;
+import com.chat.users.UserService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -11,14 +12,16 @@ import java.util.Set;
 
 public class ChatServer implements Server {
     private Set<ClientHandler> clients;
-    private AuthenticationService authenticationService;
+    private BasicAuthenticationService authenticationService;
+    private UserService userService;
 
-    public ChatServer() {
+    public ChatServer(ManagerDatabase databaseService) {
         try {
             System.out.println("Server is starting up...");
-            ServerSocket serverSocket = new ServerSocket(8888);
+            ServerSocket serverSocket = new ServerSocket(8990);
             clients = new HashSet<>();
-            authenticationService = new BasicAuthenticationService();
+            authenticationService = new BasicAuthenticationService(databaseService);
+            userService = new UserService(databaseService);
             System.out.println("Server is started up...");
 
             while (true) {
@@ -53,9 +56,7 @@ public class ChatServer implements Server {
     @Override
     public synchronized boolean isLoggedIn(String nickname) {
         return clients.stream()
-                .filter(clientHandler -> clientHandler.getName().equals(nickname))
-                .findFirst()
-                .isPresent();
+                .anyMatch(clientHandler -> clientHandler.getName().equals(nickname));
     }
 
     @Override
@@ -71,5 +72,9 @@ public class ChatServer implements Server {
     @Override
     public AuthenticationService getAuthenticationService() {
         return authenticationService;
+    }
+    @Override
+    public UserService getUserService() {
+        return userService;
     }
 }

@@ -4,15 +4,15 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.Connection;
 import java.util.Scanner;
 
 public class ClientApp {
     public static void main(String[] args) {
         try {
-            Socket socket = new Socket("localhost", 8888);
+            Socket socket = new Socket("localhost", 8990);
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-
             new Thread(() -> {
                 try {
                     while (true) {

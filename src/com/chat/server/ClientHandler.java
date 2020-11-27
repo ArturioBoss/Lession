@@ -1,5 +1,7 @@
 package com.chat.server;
 
+import com.chat.entity.User;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,6 +16,7 @@ public class ClientHandler {
     private DataInputStream in;
     private DataOutputStream out;
     private String name;
+    private User user;
 
     public ClientHandler(Server server, Socket socket) {
         try {
@@ -62,6 +65,7 @@ public class ClientHandler {
                      */
                     String[] credentialValues = credentials.split("\\s");
                     server.getAuthenticationService()
+
                             .doAuth(credentialValues[1], credentialValues[2])
                             .ifPresentOrElse(
                                     user -> {
@@ -71,7 +75,7 @@ public class ClientHandler {
                                             server.broadcastMessage(name + " is logged in.");
                                             server.subscribe(this);
                                         } else {
-                                            sendMessage("Current user is already logged in.");
+                                            sendMessage("Текущий пользователь уже вошёл в систему..");
                                         }
                                     },
                                     new Runnable() {
@@ -81,7 +85,19 @@ public class ClientHandler {
                                         }
                                     }
                             );
+
                 }
+
+                if (credentials.startsWith("-setNik ")) {
+                    String[] credentialValues = credentials.split("\\s");
+                    server.getUserService()
+                        .changeName(user,credentialValues[1]);
+//                        .user.setNickname(credentialValues[1]);
+
+
+                    
+                }
+                
                 if (credentials.startsWith("/w ")) {
                     String[] credentialValues = credentials.split(" ",3);
                     server.broadcastPrivateMessage(this, credentialValues[1],credentialValues[2]);

@@ -1,30 +1,22 @@
 package com.chat.auth;
 
 import com.chat.entity.User;
+import com.chat.server.ManagerDatabase;
 
-import java.util.List;
 import java.util.Optional;
 
 public class BasicAuthenticationService implements AuthenticationService {
-    /**
-     * Fake database with stubbed entities
-     */
-    private static final List<User> users;
+    private ManagerDatabase managerDatabase;
 
-    static {
-        users = List.of(
-                new User("n1", "n1@mail.com", "1"),
-                new User("n2", "n2@mail.com", "2"),
-                new User("n3", "n3@mail.com", "3")
-        );
+    public BasicAuthenticationService(ManagerDatabase managerDatabase) {
+        this.managerDatabase = managerDatabase;
     }
 
     @Override
     public Optional<User> doAuth(String email, String password) {
-        for (User user : users) {
-            if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
-                return Optional.of(user);
-            }
+        User user = managerDatabase.findUserByEmailAndPassword(email, password);
+        if (user != null) {
+            if (user.getPassword().equals(password)) return Optional.of(user);
         }
         return Optional.empty();
     }
