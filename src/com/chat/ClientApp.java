@@ -1,5 +1,7 @@
 package com.chat;
 
+import com.chat.io.Log;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,7 +12,7 @@ import java.util.Scanner;
 public class ClientApp {
     public static void main(String[] args) {
         try {
-            Socket socket = new Socket("localhost", 8990);
+            Socket socket = new Socket("localhost", 8991);
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             new Thread(() -> {
@@ -18,6 +20,7 @@ public class ClientApp {
                     while (true) {
                         String message = in.readUTF();
                         System.out.println(message);
+                        if (message.equals("cmd auth: Status OK")) new Log().doFileRead(100);
                     }
                 } catch (IOException e) {
                     throw new RuntimeException("SWW", e);

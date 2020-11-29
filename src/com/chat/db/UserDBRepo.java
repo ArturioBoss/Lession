@@ -1,6 +1,7 @@
 package com.chat.db;
 
 import com.chat.entity.User;
+import com.chat.io.Log;
 import com.chat.server.ManagerDatabase;
 
 import java.sql.Connection;

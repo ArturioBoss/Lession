@@ -1,6 +1,7 @@
 package com.chat.server;
 
 import com.chat.entity.User;
+import com.chat.io.Log;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -17,6 +18,7 @@ public class ClientHandler {
     private DataOutputStream out;
     private String name;
     private User user;
+    private boolean isActive = false;
 
     public ClientHandler(Server server, Socket socket) {
         try {
@@ -29,6 +31,10 @@ public class ClientHandler {
         } catch (IOException e) {
             throw new RuntimeException("SWW", e);
         }
+    }
+
+    public ClientHandler() {
+
     }
 
     public String getName() {
@@ -74,8 +80,9 @@ public class ClientHandler {
                                             name = user.getNickname();
                                             server.broadcastMessage(name + " is logged in.");
                                             server.subscribe(this);
+                                            isActive=true;
                                         } else {
-                                            sendMessage("Текущий пользователь уже вошёл в систему..");
+                                            sendMessage("Вы уже вошли в систему..");
                                         }
                                     },
                                     new Runnable() {
@@ -86,9 +93,7 @@ public class ClientHandler {
                                     }
                             );
 
-                }
-
-                if (credentials.startsWith("-setNik ")) {
+                }else if (credentials.startsWith("-setNik ")) {
                     String[] credentialValues = credentials.split("\\s");
                     server.getUserService()
                         .changeName(user,credentialValues[1]);
@@ -96,14 +101,17 @@ public class ClientHandler {
 
 
                     
-                }
-                
-                if (credentials.startsWith("/w ")) {
+                }else if (credentials.startsWith("/w ")) {
                     String[] credentialValues = credentials.split(" ",3);
                     server.broadcastPrivateMessage(this, credentialValues[1],credentialValues[2]);
                     continue;
 
+                } else if (isActive){
+                    server.broadcastMessage(name+": "+credentials);
+                    new Log().doFileWrite(name + ": " + credentials);
                 }
+
+
             }
         } catch (IOException e) {
             throw new RuntimeException("SWW", e);

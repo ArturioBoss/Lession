@@ -18,7 +18,7 @@ public class ChatServer implements Server {
     public ChatServer(ManagerDatabase databaseService) {
         try {
             System.out.println("Server is starting up...");
-            ServerSocket serverSocket = new ServerSocket(8990);
+            ServerSocket serverSocket = new ServerSocket(8991);
             clients = new HashSet<>();
             authenticationService = new BasicAuthenticationService(databaseService);
             userService = new UserService(databaseService);
@@ -56,7 +56,9 @@ public class ChatServer implements Server {
     @Override
     public synchronized boolean isLoggedIn(String nickname) {
         return clients.stream()
-                .anyMatch(clientHandler -> clientHandler.getName().equals(nickname));
+                .filter(clientHandler -> clientHandler.getName().equals(nickname))
+                .findFirst()
+                .isPresent();
     }
 
     @Override
