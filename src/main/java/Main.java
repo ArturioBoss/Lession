@@ -1,34 +1,42 @@
-import java.util.Arrays;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Main {
-    public static void main(String[] args) {
-        int[] arr = {1,4,4,4,1,1};
-        System.out.println(Arrays.toString(getArrayLast4(arr)));
-        System.out.println(check1to4Array(arr));
+    public static void main(String[] args) throws Exception{
+        process(TestClass.class);
+
 
     }
 
-    public static int[] getArrayLast4(int[] in){
-        for (int i = in.length-1; i >=0 ; i--) {
-            if (in[i] == 4){
-                return Arrays.copyOfRange(in, i+1, in.length);
+    public static void process(Class xz) throws Exception{
+        ArrayList<Method> methods = new ArrayList<Method>();
+        for (Method m : xz.getDeclaredMethods()){
+            if (m.isAnnotationPresent(Test.class)){
+                if (m.getAnnotation(Test.class).priority() < 1 || m.getAnnotation(Test.class).priority() > 10)
+                    throw new RuntimeException("Не верные приоритеты");
+                methods.add(m);
             }
         }
-        throw new RuntimeException("В данном массиве нет 4");
+        methods.sort((o1, o2) -> -o1.getAnnotation(Test.class).priority() - o2.getAnnotation(Test.class).priority());
+        for (Method m : xz.getDeclaredMethods()){
+            if (m.isAnnotationPresent(BeforeSuite.class)){
+                if (methods.size() > 0 && methods.get(0).isAnnotationPresent(BeforeSuite.class))
+                    throw new RuntimeException("Метод Before уже есть");
+                methods.add(0,m);
+            }
+
+            if (m.isAnnotationPresent(AfterSuite.class)){
+                if (methods.size() > 0 && methods.get(methods.size() - 1).isAnnotationPresent(AfterSuite.class))
+                    throw new RuntimeException("Метод After уже есть");
+                methods.add(m);
+            }
+        }
+        for (int i = 0; i < methods.size(); i++) {
+            methods.get(i).invoke(null);
+
+        }
+
     }
 
-    public static boolean check1to4Array(int[] in){
-        boolean has1 = false, has4 = false;
-        for (int i = 0; i < in.length; i++) {
-            if (in[i] == 1){
-                has1 = true;
-            }else if (in[i] == 4){
-                has4 = true;
-            }else {
-                return false;
-            }
-            
-        }
-        return has1 & has4;
-    }
 }
